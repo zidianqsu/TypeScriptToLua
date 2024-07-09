@@ -1,16 +1,11 @@
 import * as ts from "typescript";
 import * as lua from "../../../LuaAST";
-import { assert } from "../../../utils";
-import { TransformationContext } from "../../context";
+import {assert} from "../../../utils";
+import {TransformationContext} from "../../context";
 import {
-    createDefaultExportStringLiteral,
-    createExportedIdentifier,
-    getIdentifierExportScope,
-    hasDefaultExportModifier,
+    hasDefaultExportModifier
 } from "../../utils/export";
-import { createExportsIdentifier, createLocalOrExportedOrGlobalDeclaration } from "../../utils/lua-ast";
-import { LuaLibFeature, transformLuaLibFunction } from "../../utils/lualib";
-import { getExtendedNode, getExtendsClause } from "./utils";
+import {getExtendedNode} from "./utils";
 
 export function createClassSetup(
     context: TransformationContext,
@@ -22,59 +17,73 @@ export function createClassSetup(
     const result: lua.Statement[] = [];
 
     // __TS__Class()
-    const classInitializer = transformLuaLibFunction(context, LuaLibFeature.Class, statement);
+    // const classInitializer = transformLuaLibFunction(context, LuaLibFeature.Class, statement);
 
-    const defaultExportLeftHandSide = hasDefaultExportModifier(statement)
-        ? lua.createTableIndexExpression(createExportsIdentifier(), createDefaultExportStringLiteral(statement))
-        : undefined;
+    // const defaultExportLeftHandSide = hasDefaultExportModifier(statement)
+    //     ? lua.createTableIndexExpression(createExportsIdentifier(), createDefaultExportStringLiteral(statement))
+    //     : undefined;
 
-    // [____exports.]className = __TS__Class()
-    if (defaultExportLeftHandSide) {
-        result.push(lua.createAssignmentStatement(defaultExportLeftHandSide, classInitializer, statement));
-    } else {
-        result.push(...createLocalOrExportedOrGlobalDeclaration(context, className, classInitializer, statement));
+    // // [____exports.]className = __TS__Class()
+    // if (defaultExportLeftHandSide) {
+    //     result.push(lua.createAssignmentStatement(defaultExportLeftHandSide, classInitializer, statement));
+    // } else {
+    //     result.push(...createLocalOrExportedOrGlobalDeclaration(context, className, classInitializer, statement));
+    // }
+
+    // if (defaultExportLeftHandSide) {
+    //     // local localClassName = ____exports.default
+    //     result.push(lua.createVariableDeclarationStatement(localClassName, defaultExportLeftHandSide));
+    // } else {
+    //     const exportScope = getIdentifierExportScope(context, className);
+    //     if (exportScope) {
+    //         // local localClassName = ____exports.className
+    //         result.push(
+    //             lua.createVariableDeclarationStatement(
+    //                 localClassName,
+    //                 createExportedIdentifier(context, lua.cloneIdentifier(className), exportScope)
+    //             )
+    //         );
+    //     }
+    // }
+
+    // // localClassName.name = className
+    // result.push(
+    //     lua.createAssignmentStatement(
+    //         lua.createTableIndexExpression(lua.cloneIdentifier(localClassName), lua.createStringLiteral("name")),
+    //         getReflectionClassName(statement, className),
+    //         statement
+    //     )
+    // );
+
+    // if (extendsType) {
+    //     const extendedNode = getExtendedNode(statement);
+    //     assert(extendedNode);
+    //     result.push(
+    //         lua.createExpressionStatement(
+    //             transformLuaLibFunction(
+    //                 context,
+    //                 LuaLibFeature.ClassExtends,
+    //                 getExtendsClause(statement),
+    //                 lua.cloneIdentifier(localClassName),
+    //                 context.transformExpression(extendedNode.expression)
+    //             )
+    //         )
+    //     );
+    // }
+
+    // ngr begin
+    let declareClassParams = [];
+    declareClassParams.push(lua.createStringLiteral(className.text));
+
+    if(extendsType)
+    {
+        const extendNode = getExtendedNode(statement);
+        assert(extendNode);
+        declareClassParams.push(lua.createTableIndexExpression(lua.createIdentifier("ClassLib"), lua.createStringLiteral(extendNode.getText())));
     }
 
-    if (defaultExportLeftHandSide) {
-        // local localClassName = ____exports.default
-        result.push(lua.createVariableDeclarationStatement(localClassName, defaultExportLeftHandSide));
-    } else {
-        const exportScope = getIdentifierExportScope(context, className);
-        if (exportScope) {
-            // local localClassName = ____exports.className
-            result.push(
-                lua.createVariableDeclarationStatement(
-                    localClassName,
-                    createExportedIdentifier(context, lua.cloneIdentifier(className), exportScope)
-                )
-            );
-        }
-    }
-
-    // localClassName.name = className
-    result.push(
-        lua.createAssignmentStatement(
-            lua.createTableIndexExpression(lua.cloneIdentifier(localClassName), lua.createStringLiteral("name")),
-            getReflectionClassName(statement, className),
-            statement
-        )
-    );
-
-    if (extendsType) {
-        const extendedNode = getExtendedNode(statement);
-        assert(extendedNode);
-        result.push(
-            lua.createExpressionStatement(
-                transformLuaLibFunction(
-                    context,
-                    LuaLibFeature.ClassExtends,
-                    getExtendsClause(statement),
-                    lua.cloneIdentifier(localClassName),
-                    context.transformExpression(extendedNode.expression)
-                )
-            )
-        );
-    }
+    result.push(lua.createVariableDeclarationStatement(localClassName, lua.createCallExpression(lua.createIdentifier("DeclareClass"), declareClassParams)));
+    // ngr end
 
     return result;
 }

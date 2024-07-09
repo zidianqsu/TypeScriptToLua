@@ -30,8 +30,9 @@ export function transformMethodDeclaration(
     // Don't transform methods without body (overload declarations)
     if (!node.body) return [];
 
-    const methodTable = transformMemberExpressionOwnerName(node, className);
+    const methodTable = className;
     const methodName = transformMethodName(context, node);
+    const indexType = isStaticNode(node) ? lua.IndexType.Dot : lua.IndexType.Colon;
     const [functionExpression] = transformFunctionToExpression(context, node);
 
     const methodHasDecorators = (ts.getDecorators(node)?.length ?? 0) > 0;

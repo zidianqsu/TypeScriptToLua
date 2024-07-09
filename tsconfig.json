@@ -13,9 +13,7 @@
         "newLine": "LF",
         "stripInternal": true,
 
-        "strict": true,
-        "noUnusedLocals": true,
-        "noUnusedParameters": true
+        "strict": true
     },
     "include": ["src"],
     "exclude": ["src/lualib"]

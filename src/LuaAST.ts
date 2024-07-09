@@ -88,6 +88,11 @@ export enum SyntaxKind {
     BitwiseNotOperator, // Unary
 }
 
+export enum IndexType {
+    Dot,
+    Colon
+}
+
 // TODO maybe name this PrefixUnary? not sure it makes sense to do so, because all unary ops in Lua are prefix
 export type UnaryBitwiseOperator = SyntaxKind.BitwiseNotOperator;
 
@@ -797,6 +802,7 @@ export function createAnonymousIdentifier(tsOriginal?: ts.Node): Identifier {
 
 export interface TableIndexExpression extends Expression {
     kind: SyntaxKind.TableIndexExpression;
+    type: IndexType;
     table: Expression;
     index: Expression;
 }
@@ -808,11 +814,13 @@ export function isTableIndexExpression(node: Node): node is TableIndexExpression
 export function createTableIndexExpression(
     table: Expression,
     index: Expression,
-    tsOriginal?: ts.Node
+    tsOriginal?: ts.Node,
+    indexType?: IndexType
 ): TableIndexExpression {
     const expression = createNode(SyntaxKind.TableIndexExpression, tsOriginal) as TableIndexExpression;
     expression.table = table;
     expression.index = index;
+    expression.type = indexType ? indexType : IndexType.Dot;
     return expression;
 }
 
