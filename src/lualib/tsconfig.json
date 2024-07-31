@@ -6,7 +6,7 @@
         "types": ["lua-types/5.4"],
         "skipLibCheck": true,
         "rootDirs": [".", "universal"],
-
+        "newLine": "CRLF",
         "strict": true
     },
     "tstl": {

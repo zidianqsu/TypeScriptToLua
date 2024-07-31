@@ -19,3 +19,11 @@ export function transformLuaLibFunction(
     const functionIdentifier = lua.createIdentifier(`__TS__${feature}`);
     return lua.createCallExpression(functionIdentifier, params, tsParent);
 }
+
+export function transformUENewFunction(
+    context: TransformationContext, 
+    tsNode: ts.NewExpression, 
+    ...params: lua.Expression[]): lua.CallExpression
+{
+    return lua.createCallExpression(context.transformExpression(tsNode.expression), params, tsNode);
+}

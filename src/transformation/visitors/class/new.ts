@@ -3,7 +3,7 @@ import * as lua from "../../../LuaAST";
 import { FunctionVisitor } from "../../context";
 import { AnnotationKind, getTypeAnnotations } from "../../utils/annotations";
 import { annotationInvalidArgumentCount } from "../../utils/diagnostics";
-import { LuaLibFeature, transformLuaLibFunction } from "../../utils/lualib";
+import { LuaLibFeature, transformLuaLibFunction, transformUENewFunction } from "../../utils/lualib";
 import { transformArguments, transformCallAndArguments } from "../call";
 import { isTableNewCall } from "../language-extensions/table";
 
@@ -37,5 +37,12 @@ export const transformNewExpression: FunctionVisitor<ts.NewExpression> = (node, 
         }
     }
 
-    return transformLuaLibFunction(context, LuaLibFeature.New, node, name, ...params);
+    if(context.options.unlua)
+    {
+        return transformUENewFunction(context, node, ...params);
+    }
+    else
+    {
+        return transformLuaLibFunction(context, LuaLibFeature.New, node, name, ...params);
+    }
 };

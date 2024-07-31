@@ -187,7 +187,7 @@ export class LuaPrinter {
         let code = rootSourceNode.toString();
 
         if (this.options.inlineSourceMap) {
-            code += "\n" + this.printInlineSourceMap(sourceMap);
+            code += "\r\n" + this.printInlineSourceMap(sourceMap);
         }
 
         if (this.options.sourceMapTraceback) {
@@ -217,7 +217,7 @@ export class LuaPrinter {
                 }
             }
 
-            currentLine += chunk.split("\n").length - 1;
+            currentLine += chunk.split("\r\n").length - 1;
         });
 
         const mapItems = Object.entries(map).map(([line, original]) => `["${line}"] = ${original}`);
@@ -253,7 +253,7 @@ export class LuaPrinter {
         if (this.options.sourceMapTraceback && !isBundleEnabled(this.options)) {
             // In bundle mode the traceback is being generated for the entire file in getBundleResult
             // Otherwise, traceback is being generated locally
-            sourceChunks.push(`${LuaPrinter.sourceMapTracebackPlaceholder}\n`);
+            sourceChunks.push(`${LuaPrinter.sourceMapTracebackPlaceholder}\r\n`);
         }
 
         // Print reest of the statements in file
@@ -331,7 +331,7 @@ export class LuaPrinter {
             if (lua.isReturnStatement(statement)) break;
         }
 
-        return statementNodes.length > 0 ? [...intersperse<SourceChunk>(statementNodes, "\n"), "\n"] : [];
+        return statementNodes.length > 0 ? [...intersperse<SourceChunk>(statementNodes, "\r\n"), "\r\n"] : [];
     }
 
     public printStatement(statement: lua.Statement): SourceNode {
@@ -339,8 +339,8 @@ export class LuaPrinter {
 
         if (statement.leadingComments) {
             resultNode = this.concatNodes(
-                statement.leadingComments.map(c => this.printComment(c)).join("\n"),
-                "\n",
+                statement.leadingComments.map(c => this.printComment(c)).join("\r\n"),
+                "\r\n",
                 resultNode
             );
         }
@@ -348,8 +348,8 @@ export class LuaPrinter {
         if (statement.trailingComments) {
             resultNode = this.concatNodes(
                 resultNode,
-                "\n",
-                statement.trailingComments.map(c => this.printComment(c)).join("\n")
+                "\r\n",
+                statement.trailingComments.map(c => this.printComment(c)).join("\r\n")
             );
         }
 
@@ -362,7 +362,7 @@ export class LuaPrinter {
                 return this.indent("--[[]]");
             } else {
                 const [firstLine, ...restLines] = comment;
-                const commentLines = this.concatNodes(...restLines.map(c => this.concatNodes("\n", this.indent(c))));
+                const commentLines = this.concatNodes(...restLines.map(c => this.concatNodes("\r\n", this.indent(c))));
                 return this.concatNodes(this.indent("--[["), firstLine, commentLines, "]]");
             }
         } else {
@@ -406,7 +406,7 @@ export class LuaPrinter {
     public printDoStatement(statement: lua.DoStatement): SourceNode {
         const chunks: SourceChunk[] = [];
 
-        chunks.push(this.indent("do\n"));
+        chunks.push(this.indent("do\r\n"));
         this.pushIndent();
         chunks.push(...this.printStatementArray(statement.statements));
         this.popIndent();
@@ -460,7 +460,7 @@ export class LuaPrinter {
         const chunks: SourceChunk[] = [];
 
         const prefix = isElseIf ? "elseif" : "if";
-        chunks.push(this.indent(prefix + " "), this.printExpression(statement.condition), " then\n");
+        chunks.push(this.indent(prefix + " "), this.printExpression(statement.condition), " then\r\n");
 
         this.pushIndent();
         chunks.push(this.printBlock(statement.ifBlock));
@@ -470,7 +470,7 @@ export class LuaPrinter {
             if (lua.isIfStatement(statement.elseBlock)) {
                 chunks.push(this.printIfStatement(statement.elseBlock, true));
             } else {
-                chunks.push(this.indent("else\n"));
+                chunks.push(this.indent("else\r\n"));
                 this.pushIndent();
                 chunks.push(this.printBlock(statement.elseBlock));
                 this.popIndent();
@@ -486,7 +486,7 @@ export class LuaPrinter {
     public printWhileStatement(statement: lua.WhileStatement): SourceNode {
         const chunks: SourceChunk[] = [];
 
-        chunks.push(this.indent("while "), this.printExpression(statement.condition), " do\n");
+        chunks.push(this.indent("while "), this.printExpression(statement.condition), " do\r\n");
 
         this.pushIndent();
         chunks.push(this.printBlock(statement.body));
@@ -500,7 +500,7 @@ export class LuaPrinter {
     public printRepeatStatement(statement: lua.RepeatStatement): SourceNode {
         const chunks: SourceChunk[] = [];
 
-        chunks.push(this.indent("repeat\n"));
+        chunks.push(this.indent("repeat\r\n"));
 
         this.pushIndent();
         chunks.push(this.printBlock(statement.body));
@@ -523,7 +523,7 @@ export class LuaPrinter {
         if (statement.stepExpression) {
             chunks.push(", ", this.printExpression(statement.stepExpression));
         }
-        chunks.push(" do\n");
+        chunks.push(" do\r\n");
 
         this.pushIndent();
         chunks.push(this.printBlock(statement.body));
@@ -540,7 +540,7 @@ export class LuaPrinter {
 
         const chunks: SourceChunk[] = [];
 
-        chunks.push(this.indent("for "), ...names, " in ", ...expressions, " do\n");
+        chunks.push(this.indent("for "), ...names, " in ", ...expressions, " do\r\n");
 
         this.pushIndent();
         chunks.push(this.printBlock(statement.body));
@@ -670,7 +670,7 @@ export class LuaPrinter {
             chunks.push(this.createSourceNode(returnStatement, returnNode));
             chunks.push(this.createSourceNode(expression, " end"));
         } else {
-            chunks.push("\n");
+            chunks.push("\r\n");
             this.pushIndent();
             chunks.push(this.printBlock(expression.body));
             this.popIndent();
@@ -688,7 +688,7 @@ export class LuaPrinter {
         chunks.push(this.printExpression(statement.left[0]));
         chunks.push("(");
         chunks.push(...this.printFunctionParameters(expression));
-        chunks.push(")\n");
+        chunks.push(")\r\n");
 
         this.pushIndent();
         chunks.push(this.printBlock(expression.body));
@@ -851,10 +851,10 @@ export class LuaPrinter {
         if (this.isSimpleExpressionList(expressions)) {
             chunks.push(...this.joinChunksWithComma(expressions.map(e => this.printExpression(e))));
         } else {
-            chunks.push("\n");
+            chunks.push("\r\n");
             this.pushIndent();
             for (const [index, expression] of expressions.entries()) {
-                const tail = index < expressions.length - 1 ? ",\n" : "\n";
+                const tail = index < expressions.length - 1 ? ",\r\n" : "\r\n";
                 chunks.push(this.indent(), this.printExpression(expression), tail);
             }
             this.popIndent();

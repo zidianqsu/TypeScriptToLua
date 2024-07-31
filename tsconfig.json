@@ -10,7 +10,7 @@
         "outDir": "dist",
         "declaration": true,
         "sourceMap": true,
-        "newLine": "LF",
+        "newLine": "CRLF",
         "stripInternal": true,
 
         "strict": true

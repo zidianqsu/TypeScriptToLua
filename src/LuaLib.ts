@@ -222,7 +222,7 @@ export function loadInlineLualibFeatures(
 ): string {
     return resolveRecursiveLualibFeatures(features, luaTarget, emitHost)
         .map(feature => readLuaLibFeature(feature, luaTarget, emitHost))
-        .join("\n");
+        .join("\r\n");
 }
 
 export function loadImportedLualibFeatures(
@@ -273,7 +273,7 @@ export function getLuaLibBundle(luaTarget: LuaTarget, emitHost: EmitHost): strin
 }
 
 export function getLualibBundleReturn(exportedValues: string[]): string {
-    return `\nreturn {\n${exportedValues.map(exportName => `  ${exportName} = ${exportName}`).join(",\n")}\n}\n`;
+    return `\r\nreturn {\r\n${exportedValues.map(exportName => `  ${exportName} = ${exportName}`).join(",\r\n")}\r\n}\r\n`;
 }
 
 export function buildMinimalLualibBundle(

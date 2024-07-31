@@ -44,7 +44,7 @@ class LuaLibPlugin implements tstl.Plugin {
         const emitBOM = options.emitBOM ?? false;
         emitHost.writeFile(
             path.join(tstl.getEmitOutDir(program), luaLibModulesInfoFileName),
-            JSON.stringify(luaLibModuleInfo, null, 2),
+            JSON.stringify(luaLibModuleInfo),
             emitBOM
         );
 
@@ -67,7 +67,7 @@ class LuaLibPlugin implements tstl.Plugin {
         const orderedFeatures = resolveRecursiveLualibFeatures(allFeatures, luaTarget, emitHost, luaLibModuleInfo);
 
         // Concatenate lualib files into bundle with exports table and add lualib_bundle.lua to results
-        let lualibBundle = orderedFeatures.map(f => exportedLualibFeatures.get(LuaLibFeature[f])).join("\n");
+        let lualibBundle = orderedFeatures.map(f => exportedLualibFeatures.get(LuaLibFeature[f])).join("\r\n");
         const exports = allFeatures.flatMap(feature => luaLibModuleInfo[feature].exports);
         lualibBundle += getLualibBundleReturn(exports);
         result.push({ fileName: "lualib_bundle.lua", code: lualibBundle });
