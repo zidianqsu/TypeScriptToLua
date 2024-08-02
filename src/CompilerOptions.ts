@@ -41,7 +41,6 @@ export interface TypeScriptToLuaOptions {
     lua51AllowTryCatchInAsyncAwait?: boolean;
     measurePerformance?: boolean;
     unlua?: boolean;
-    noImport?: boolean;
     noModule?: boolean;
 }
 
