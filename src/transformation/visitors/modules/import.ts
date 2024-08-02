@@ -60,6 +60,11 @@ function transformImportSpecifier(
 }
 
 export const transformImportDeclaration: FunctionVisitor<ts.ImportDeclaration> = (statement, context) => {
+    if(context.options.noModule)
+    {
+        return undefined;
+    }
+    
     const scope = peekScope(context);
 
     if (!scope.importStatements) {

@@ -31,7 +31,7 @@ export const transformSourceFileNode: FunctionVisitor<ts.SourceFile> = (node, co
         statements = performHoisting(context, context.transformStatements(node.statements));
         context.popScope();
 
-        if (context.isModule) {
+        if (context.isModule && !context.options.noModule) {
             // If export equals was not used. Create the exports table.
             // local ____exports = {}
             if (!hasExportEquals(node)) {

@@ -15,6 +15,10 @@ export function createConstructorName(className: lua.Identifier): lua.TableIndex
     return lua.createTableIndexExpression(createPrototypeName(className), lua.createStringLiteral("____constructor"));
 }
 
+export function createUnLuaConstructorName(className: lua.Identifier): lua.TableIndexExpression {
+    return lua.createTableIndexExpression(lua.cloneIdentifier(className), lua.createStringLiteral("Constructor"));
+}
+
 export function transformConstructorDeclaration(
     context: TransformationContext,
     statement: ts.ConstructorDeclaration,
@@ -89,7 +93,7 @@ export function transformConstructorDeclaration(
     context.popScope();
 
     return lua.createAssignmentStatement(
-        createConstructorName(className),
+        context.options.unlua ? createUnLuaConstructorName(className) : createConstructorName(className),
         lua.createFunctionExpression(block, params, dotsLiteral, lua.NodeFlags.Declaration),
         constructorWasGenerated ? classDeclaration : statement
     );

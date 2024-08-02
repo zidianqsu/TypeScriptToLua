@@ -118,6 +118,17 @@ function computeDeclarationContextType(context: TransformationContext, signature
         return ContextType.Void;
     }
 
+    if (ts.isMethodSignature(signatureDeclaration) ||
+        ts.isMethodDeclaration(signatureDeclaration)) {
+        if (signatureDeclaration.modifiers) {
+            for (let i = 0; i < signatureDeclaration.modifiers.length; i++) {
+                if (signatureDeclaration.modifiers[i].kind === ts.SyntaxKind.StaticKeyword) {
+                    return ContextType.Void;
+                }
+            }
+        }
+    }
+
     if (
         ts.isMethodSignature(signatureDeclaration) ||
         ts.isMethodDeclaration(signatureDeclaration) ||
