@@ -104,6 +104,16 @@ export const optionDeclarations: CommandLineOption[] = [
         description: "Measure performance of the tstl compiler.",
         type: "boolean",
     },
+    {
+        name: "unlua",
+        description: "Unlua library.",
+        type: "boolean",
+    },
+    {
+        name: "noModule",
+        description: "Dont transform import declaration.",
+        type: "boolean",
+    }
 ];
 
 export function updateParsedConfigFile(parsedConfigFile: ts.ParsedCommandLine): ParsedCommandLine {

@@ -5,13 +5,36 @@
             "name": "Debug current jest test",
             "type": "node",
             "request": "launch",
-            "env": { "CI": "true" },
+            "env": {
+                "CI": "true"
+            },
             "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/jest",
-            "args": ["--runInBand", "--no-cache", "--runTestsByPath", "${relativeFile}"],
+            "args": [
+                "--runInBand",
+                "--no-cache",
+                "--runTestsByPath",
+                "${relativeFile}"
+            ],
             "cwd": "${workspaceRoot}",
             "protocol": "inspector",
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen"
+        },
+        {
+            "name": "Node.js: Launch Program",
+            "type": "node",
+            "request": "launch",
+            "program": "G:/TypeScriptToLua/dist/tstl.js",
+            "cwd": "S:/zidianqsu_Trunk/TypeScript",
+            "sourceMaps": true
+        },
+        {
+            "name": "Node.js: unit_test",
+            "type": "node",
+            "request": "launch",
+            "program": "G:/TypeScriptToLua/unit_test/transpileFile.js",
+            "cwd": "${workspaceRoot}",
+            "sourceMaps": true
         }
     ]
 }

@@ -3,6 +3,7 @@ node_modules
 /coverage
 /test/transpile/module-resolution/**/dist
 /test/transpile/module-resolution/**/tsconfig.tsbuildinfo
+/unit_test/*
 
 yarn.lock
 .vscode

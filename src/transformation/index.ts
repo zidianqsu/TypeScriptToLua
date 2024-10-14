@@ -41,5 +41,28 @@ export function transformSourceFile(program: ts.Program, sourceFile: ts.SourceFi
     // TS -> Lua transformation
     const [file] = context.transformNode(result.transformed[0]) as [lua.File];
 
+    if(sourceFile.statements.length > 0 && file.statements.length > 0)
+    {
+        const firstTSStatement = sourceFile.statements[0];
+        const firstLuaStatement = file.statements[0];
+        
+        const fullText = firstTSStatement.getFullText(sourceFile);
+        const comments = ts.getLeadingCommentRanges(fullText, 0);
+        if(comments)
+        {
+            let leadingComments = firstLuaStatement.leadingComments;
+            if(!leadingComments)
+            {
+                leadingComments = new Array<string>();
+                firstLuaStatement.leadingComments = leadingComments;
+            }
+
+            for(let i=0; i<comments.length; i++)
+            {
+                leadingComments.push([fullText.slice(comments[i].pos, comments[i].end)]);
+            }
+        }
+    }
+
     return { file, diagnostics: context.diagnostics };
 }

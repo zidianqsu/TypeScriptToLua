@@ -33,7 +33,8 @@
         "fix:prettier": "prettier --write .",
         "check:language-extensions": "tsc --strict language-extensions/index.d.ts",
         "preversion": "npm run build && npm test",
-        "postversion": "git push && git push --tags"
+        "postversion": "git push && git push --tags",
+        "publish": "xcopy .\\dist G:\\TimiL2GameUI_Figma\\LocalServer\\src\\typescript-to-lua\\dist /S /Y && xcopy .\\dist S:\\zidianqsu_Trunk\\TypeScript\\typescript-to-lua\\dist /S /Y"
     },
     "bin": {
         "tstl": "dist/tstl.js"
