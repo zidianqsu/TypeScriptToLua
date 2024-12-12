@@ -21,9 +21,26 @@ export function transformLuaLibFunction(
 }
 
 export function transformUENewFunction(
-    context: TransformationContext, 
-    tsNode: ts.NewExpression, 
-    ...params: lua.Expression[]): lua.CallExpression
-{
-    return lua.createCallExpression(context.transformExpression(tsNode.expression), params, tsNode);
+    context: TransformationContext,
+    tsNode: ts.NewExpression,
+    ...params: lua.Expression[]): lua.CallExpression {
+    const indexNode = tsNode.expression.kind === ts.SyntaxKind.Identifier ? lua.createStringLiteral(
+        tsNode.expression.getText()) : context.transformExpression(tsNode.expression);
+    return lua.createCallExpression(
+        lua.createTableIndexExpression(
+            lua.createTableIndexExpression(
+                lua.createIdentifier("ClassLib"),
+                indexNode,
+                undefined
+            ),
+            lua.createStringLiteral("New")
+        ),
+        [
+            lua.createTableIndexExpression(
+                lua.createIdentifier("ClassLib"),
+                indexNode,
+                undefined
+            )
+        ]
+    );
 }
