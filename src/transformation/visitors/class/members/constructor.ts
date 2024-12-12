@@ -24,6 +24,7 @@ export function transformConstructorDeclaration(
     statement: ts.ConstructorDeclaration,
     className: lua.Identifier,
     instanceFields: ts.PropertyDeclaration[],
+    propertiesFields: ts.PropertyDeclaration[],
     classDeclaration: ts.ClassLikeDeclaration
 ): lua.Statement | undefined {
     // Don't transform methods without body (overload declarations)
@@ -47,7 +48,7 @@ export function transformConstructorDeclaration(
     // Check for field declarations in constructor
     const constructorFieldsDeclarations = statement.parameters.filter(p => p.modifiers !== undefined);
 
-    const classInstanceFields = transformClassInstanceFields(context, instanceFields);
+    const classInstanceFields = transformClassInstanceFields(context, instanceFields, propertiesFields);
 
     // If there are field initializers and the first statement is a super call,
     // move super call between default assignments and initializers

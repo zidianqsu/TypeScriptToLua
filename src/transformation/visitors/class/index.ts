@@ -76,10 +76,10 @@ function transformClassLikeDeclaration(
     context.classSuperInfos.push({ className, extendedTypeNode });
 
     // Get all properties with value
-    const properties = classDeclaration.members.filter(ts.isPropertyDeclaration).filter(member => member.initializer);
+    const properties = classDeclaration.members.filter(ts.isPropertyDeclaration).filter(prop => !isStaticNode(prop));
 
     // Divide properties into static and non-static
-    const instanceFields = properties.filter(prop => !isStaticNode(prop));
+    const instanceFields = properties.filter(member => member.initializer);
 
     const result: lua.Statement[] = [];
 
@@ -110,6 +110,7 @@ function transformClassLikeDeclaration(
             constructor,
             localClassName,
             instanceFields,
+            properties,
             classDeclaration
         );
 
@@ -125,16 +126,17 @@ function transformClassLikeDeclaration(
             ts.factory.createConstructorDeclaration([], [], ts.factory.createBlock([], true)),
             localClassName,
             instanceFields,
+            properties,
             classDeclaration
         );
 
         if (constructorResult) result.push(constructorResult);
-    } else if (instanceFields.length > 0) {
+    } else if (properties.length > 0) {
         // Generate a constructor if none was defined in a class with instance fields that need initialization
         // localClassName.prototype.____constructor = function(self, ...)
         //     baseClassName.prototype.____constructor(self, ...)  // or unpack(arg) for Lua 5.0
         //     ...
-        const constructorBody = transformClassInstanceFields(context, instanceFields);
+        const constructorBody = transformClassInstanceFields(context, instanceFields, properties);
         const argsExpression =
             context.luaTarget === LuaTarget.Lua50
                 ? lua.createCallExpression(lua.createIdentifier("unpack"), [lua.createArgLiteral()])
