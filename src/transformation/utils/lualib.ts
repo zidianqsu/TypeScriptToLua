@@ -20,6 +20,7 @@ export function transformLuaLibFunction(
     return lua.createCallExpression(functionIdentifier, params, tsParent);
 }
 
+// [NGR Begin][maxstsun] transform class creation method to use NGR class type
 export function transformUENewFunction(
     context: TransformationContext,
     tsNode: ts.NewExpression,
@@ -44,3 +45,4 @@ export function transformUENewFunction(
         ]
     );
 }
+// [NGR End][maxstsun]
