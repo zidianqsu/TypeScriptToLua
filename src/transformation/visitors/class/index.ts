@@ -145,7 +145,9 @@ function transformClassLikeDeclaration(
             lua.createCallExpression(
                 lua.createTableIndexExpression(
                     context.transformExpression(ts.factory.createSuper()),
-                    lua.createStringLiteral("____constructor")
+                    // [NGR Begin][maxstsun] fix super call mismatch in ngr class
+                    lua.createStringLiteral("Constructor")
+                    // [NGR End]
                 ),
                 [createSelfIdentifier(), argsExpression]
             )
@@ -250,28 +252,16 @@ export const transformSuperExpression: FunctionVisitor<ts.SuperExpression> = (ex
     if (!superInfo) return lua.createAnonymousIdentifier(expression);
     const { className, extendedTypeNode } = superInfo;
 
-    // Using `super` without extended type node is a TypeScript error
-    const extendsExpression = extendedTypeNode?.expression;
-    let baseClassName: lua.AssignmentLeftHandSideExpression | undefined;
-
-    if (extendsExpression && ts.isIdentifier(extendsExpression)) {
-        const symbol = context.checker.getSymbolAtLocation(extendsExpression);
-        if (symbol && !isSymbolExported(context, symbol)) {
-            // Use "baseClassName" if base is a simple identifier
-            baseClassName = transformIdentifier(context, extendsExpression);
-        }
-    }
-
-    if (!baseClassName) {
-        // Use "className.____super" if the base is not a simple identifier
-        baseClassName = lua.createTableIndexExpression(className, lua.createStringLiteral("____super"), expression);
-    }
-
-    const f = findFirstNodeAbove(expression, ts.isFunctionLike);
-    if (f && ts.canHaveModifiers(f) && isStaticNode(f)) {
-        // In static method, don't add prototype to super call
-        return baseClassName;
-    } else {
-        return lua.createTableIndexExpression(baseClassName, lua.createStringLiteral("prototype"));
-    }
+    // [NGR Begin][maxstsun] fix super call mismatch in ngr class
+    return lua.createTableIndexExpression(
+        lua.createTableIndexExpression(
+            lua.createTableIndexExpression(
+                lua.createIdentifier("ClassLib"),
+                lua.createStringLiteral(className.text)
+            ),
+            lua.createStringLiteral("__super")
+        ),
+        lua.createStringLiteral("__vtbl")
+    );
+    // [NGR End]
 };

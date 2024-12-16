@@ -254,7 +254,9 @@ export const transformCallExpression: FunctionVisitor<ts.CallExpression> = (node
         return lua.createCallExpression(
             lua.createTableIndexExpression(
                 context.transformExpression(ts.factory.createSuper()),
-                lua.createStringLiteral("____constructor")
+                // [NGR Begin][maxstsun] fix super call mismatch in ngr class
+                lua.createStringLiteral("Constructor")
+                // [NGR End]
             ),
             parameters,
             node
