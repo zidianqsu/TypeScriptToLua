@@ -13,7 +13,7 @@ import { createSafeName, isUnsafeName } from "../../utils/safe-names";
 import { transformIdentifier } from "../identifier";
 import { createClassDecoratingExpression, createConstructorDecoratingExpression } from "./decorators";
 import { transformAccessorDeclarations } from "./members/accessors";
-import { createConstructorName, transformConstructorDeclaration } from "./members/constructor";
+import {createConstructorName, createUnLuaConstructorName, transformConstructorDeclaration} from "./members/constructor";
 import { transformClassInstanceFields, transformStaticPropertyDeclaration } from "./members/fields";
 import { transformMethodDeclaration } from "./members/method";
 import { getExtendedNode, getExtendedType, isStaticNode } from "./utils";
@@ -160,7 +160,11 @@ function transformClassLikeDeclaration(
             lua.NodeFlags.Declaration
         );
         result.push(
-            lua.createAssignmentStatement(createConstructorName(localClassName), constructorFunction, classDeclaration)
+            // [NGR Begin][maxstsun] add unlua constructor name
+            lua.createAssignmentStatement(context.options.unlua ?
+                                          createUnLuaConstructorName(localClassName) :
+                                          createConstructorName(localClassName), constructorFunction, classDeclaration)
+            // [NGR End]
         );
     }
 

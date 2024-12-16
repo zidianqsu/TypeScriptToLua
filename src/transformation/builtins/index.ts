@@ -1,6 +1,7 @@
 import * as ts from "typescript";
 import * as lua from "../../LuaAST";
 import { TransformationContext } from "../context";
+import {ngrTransformArrayConstructorCall, ngrTransformArrayProperty, ngrTransformArrayPrototypeCall} from "../ngrBuiltins/array";
 import { createNaN } from "../utils/lua-ast";
 import { importLuaLibFeature, LuaLibFeature } from "../utils/lualib";
 import { getIdentifierSymbolId } from "../utils/symbols";
@@ -42,7 +43,9 @@ export function transformBuiltinPropertyAccessExpression(
     }
 
     if (isArrayType(context, ownerType)) {
-        return transformArrayProperty(context, node);
+
+        return context.options.unlua ? ngrTransformArrayProperty(context, node)
+                                       : transformArrayProperty(context, node);
     }
 
     if (isFunctionType(ownerType)) {
@@ -89,7 +92,8 @@ function tryTransformBuiltinGlobalMethodCall(
     let result: lua.Expression | undefined;
     switch (ownerSymbol.name) {
         case "ArrayConstructor":
-            result = transformArrayConstructorCall(context, node, calledMethod);
+            result = context.options.unlua ? ngrTransformArrayConstructorCall(context, node, calledMethod)
+                                           : transformArrayConstructorCall(context, node, calledMethod);
             break;
         case "Console":
             result = transformConsoleCall(context, node, calledMethod);
@@ -141,7 +145,8 @@ function tryTransformBuiltinPropertyCall(
             return transformNumberPrototypeCall(context, node, calledMethod);
         case "Array":
         case "ReadonlyArray":
-            return transformArrayPrototypeCall(context, node, calledMethod);
+            return context.options.unlua ? ngrTransformArrayPrototypeCall(context, node, calledMethod)
+                : transformArrayPrototypeCall(context, node, calledMethod);
         case "Function":
         case "CallableFunction":
         case "NewableFunction":

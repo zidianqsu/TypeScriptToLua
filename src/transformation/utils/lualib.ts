@@ -41,7 +41,8 @@ export function transformUENewFunction(
                 lua.createIdentifier("ClassLib"),
                 indexNode,
                 undefined
-            )
+            ),
+            ...params
         ]
     );
 }
