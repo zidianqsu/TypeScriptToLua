@@ -5,6 +5,7 @@ import { isPromiseClass, createPromiseIdentifier } from "../builtins/promise";
 import { FunctionVisitor, tempSymbolId, TransformationContext } from "../context";
 import { invalidCallExtensionUse } from "../utils/diagnostics";
 import { createExportedIdentifier, getSymbolExportScope } from "../utils/export";
+import {importLuaLibFeature, LuaLibFeature} from "../utils/lualib";
 import { createSafeName, hasUnsafeIdentifierName } from "../utils/safe-names";
 import { getIdentifierSymbolId } from "../utils/symbols";
 import { getOptionalContinuationData, isOptionalContinuation } from "./optional-chaining";
@@ -74,7 +75,22 @@ function transformNonValueIdentifier(
 
     const type = context.checker.getTypeAtLocation(identifier);
     if (isStandardLibraryType(context, type, undefined)) {
-        checkForLuaLibType(context, type);
+        // [NGR Begin][maxstsun] replace lib type constructors with Table
+        const libType = checkForLuaLibType(context, type);
+        switch (libType){
+            case "Map":
+            case "MapConstructor":
+                return lua.createIdentifier("Table");
+            case "Set":
+            case "SetConstructor":
+            case "WeakMap":
+            case "WeakMapConstructor":
+            case "WeakSet":
+            case "WeakSetConstructor":
+            case "Promise":
+        }
+        // [NGR End]
+
         if (isPromiseClass(context, identifier)) {
             return createPromiseIdentifier(identifier);
         }

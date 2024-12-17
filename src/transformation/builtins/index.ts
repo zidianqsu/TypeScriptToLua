@@ -20,6 +20,7 @@ import { transformSymbolConstructorCall } from "./symbol";
 import { unsupportedBuiltinOptionalCall } from "../utils/diagnostics";
 import { LuaTarget } from "../../CompilerOptions";
 import { transformMapConstructorCall } from "./map";
+import {ngrTransformMapConstructorCall, ngrTransformMapPrototypeCall} from "../ngrBuiltins/map";
 
 export function transformBuiltinPropertyAccessExpression(
     context: TransformationContext,
@@ -99,7 +100,8 @@ function tryTransformBuiltinGlobalMethodCall(
             result = transformConsoleCall(context, node, calledMethod);
             break;
         case "MapConstructor":
-            result = transformMapConstructorCall(context, node, calledMethod);
+            result = context.options.unlua ? transformMapConstructorCall(context, node, calledMethod)
+                : ngrTransformMapConstructorCall(context, node, calledMethod);
             break;
         case "Math":
             result = transformMathCall(context, node, calledMethod);
@@ -151,6 +153,8 @@ function tryTransformBuiltinPropertyCall(
         case "CallableFunction":
         case "NewableFunction":
             return transformFunctionPrototypeCall(context, node, calledMethod);
+        case "Map":
+            return context.options.unlua && ngrTransformMapPrototypeCall(context, node, calledMethod);
     }
 }
 
@@ -193,7 +197,7 @@ const builtinErrorTypeNames = new Set([
     "URIErrorConstructor",
 ]);
 
-export function checkForLuaLibType(context: TransformationContext, type: ts.Type): void {
+export function checkForLuaLibType(context: TransformationContext, type: ts.Type){
     const symbol = type.symbol;
     if (!symbol || symbol.parent) return;
     const name = symbol.name;
@@ -202,23 +206,23 @@ export function checkForLuaLibType(context: TransformationContext, type: ts.Type
         case "Map":
         case "MapConstructor":
             importLuaLibFeature(context, LuaLibFeature.Map);
-            return;
+            return name;
         case "Set":
         case "SetConstructor":
             importLuaLibFeature(context, LuaLibFeature.Set);
-            return;
+            return name;
         case "WeakMap":
         case "WeakMapConstructor":
             importLuaLibFeature(context, LuaLibFeature.WeakMap);
-            return;
+            return name;
         case "WeakSet":
         case "WeakSetConstructor":
             importLuaLibFeature(context, LuaLibFeature.WeakSet);
-            return;
+            return name;
         case "Promise":
         case "PromiseConstructor":
             importLuaLibFeature(context, LuaLibFeature.Promise);
-            return;
+            return name;
     }
 
     if (builtinErrorTypeNames.has(name)) {

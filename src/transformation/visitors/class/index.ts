@@ -141,18 +141,6 @@ function transformClassLikeDeclaration(
             context.luaTarget === LuaTarget.Lua50
                 ? lua.createCallExpression(lua.createIdentifier("unpack"), [lua.createArgLiteral()])
                 : lua.createDotsLiteral();
-        const superCall = lua.createExpressionStatement(
-            lua.createCallExpression(
-                lua.createTableIndexExpression(
-                    context.transformExpression(ts.factory.createSuper()),
-                    // [NGR Begin][maxstsun] fix super call mismatch in ngr class
-                    lua.createStringLiteral("Constructor")
-                    // [NGR End]
-                ),
-                [createSelfIdentifier(), argsExpression]
-            )
-        );
-        constructorBody.unshift(superCall);
         const constructorFunction = lua.createFunctionExpression(
             lua.createBlock(constructorBody),
             [createSelfIdentifier()],

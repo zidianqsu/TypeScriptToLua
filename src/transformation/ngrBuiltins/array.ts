@@ -91,7 +91,16 @@ export function ngrTransformArrayPrototypeCall(
         case "at":
             return transformLuaLibFunction(context, LuaLibFeature.ArrayAt, node, caller, ...params);
         case "concat":
-            return transformLuaLibFunction(context, LuaLibFeature.ArrayConcat, node, caller, ...params);
+            return lua.createCallExpression(
+                lua.createTableIndexExpression(
+                    lua.createIdentifier("table"), lua.createStringLiteral("merge")
+                ),
+                [
+                    caller,
+                    ...params
+                ],
+                node
+            );
         case "entries":
             return transformLuaLibFunction(context, LuaLibFeature.ArrayEntries, node, caller);
         case "fill":
@@ -133,7 +142,16 @@ export function ngrTransformArrayPrototypeCall(
                 node
             );
         case "forEach":
-            return transformLuaLibFunction(context, LuaLibFeature.ArrayForEach, node, caller, ...params);
+            return lua.createCallExpression(
+                lua.createTableIndexExpression(
+                    lua.createIdentifier("table"), lua.createStringLiteral("foreach")
+                ),
+                [
+                    caller,
+                    ...params
+                ],
+                node
+            );
         case "find":
             return transformLuaLibFunction(context, LuaLibFeature.ArrayFind, node, caller, ...params);
         case "findIndex":

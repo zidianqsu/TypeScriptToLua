@@ -14,6 +14,11 @@ export const transformNewExpression: FunctionVisitor<ts.NewExpression> = (node, 
 
     const signature = context.checker.getResolvedSignature(node);
     const [name, params] = transformCallAndArguments(context, node.expression, node.arguments ?? [], signature);
+// [NGR Begin][maxstsun] replace table identifier with Table expression
+    if (name.kind === lua.SyntaxKind.Identifier && (name as lua.Identifier).text === "Table") {
+        return lua.createTableExpression();
+    }
+// [NGR End]
 
     const type = context.checker.getTypeAtLocation(node);
     const annotations = getTypeAnnotations(type);
