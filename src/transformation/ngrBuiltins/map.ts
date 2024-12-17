@@ -49,5 +49,10 @@ export function ngrTransformMapPrototypeCall(
                     params[1],
                 ]
             );
+        case "get":
+            return lua.createTableIndexExpression(
+                caller,
+                params[0]
+            );
     }
 }

@@ -239,7 +239,9 @@ export function transformFunctionToExpression(
         if (ts.isArrowFunction(node)) {
             // dummy context for arrow functions with parameters
             if (node.parameters.length > 0) {
-                functionContext = lua.createAnonymousIdentifier();
+                // [NGR Begin][maxstsun]
+                functionContext = undefined // lua.createAnonymousIdentifier();
+                // [NGR End]
             }
         } else {
             // self context
