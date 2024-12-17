@@ -218,6 +218,14 @@ function transformClassLikeDeclaration(
         }
     }
 
+    // [NGR Begin][maxstsun] add return for class declareation
+    result.push(
+        lua.createReturnStatement(
+            [localClassName]
+        )
+    )
+    // [NGR End]
+
     context.classSuperInfos.pop();
 
     return { statements: result, name: className };
