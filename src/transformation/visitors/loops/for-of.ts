@@ -1,7 +1,9 @@
 import * as ts from "typescript";
 import * as lua from "../../../LuaAST";
 import { FunctionVisitor, TransformationContext } from "../../context";
+import {transformPuerForOfTArrayStatement} from "../../ngrBuiltins/puerTs";
 import { LuaLibFeature, transformLuaLibFunction } from "../../utils/lualib";
+import {isPuerArrayType} from "../../utils/ngr/types";
 import { isArrayType } from "../../utils/typescript";
 import {
     transformForOfIterableStatement,
@@ -60,8 +62,14 @@ export const transformForOfStatement: FunctionVisitor<ts.ForOfStatement> = (node
             assertNever(iterableExtensionType);
         }
     }
-    if (isArrayType(context, context.checker.getTypeAtLocation(node.expression))) {
+
+    const type = context.checker.getTypeAtLocation(node.expression);
+    if (isArrayType(context, type)) {
         return transformForOfArrayStatement(context, node, body);
+    }
+
+    if(isPuerArrayType(context, type)){
+        return transformPuerForOfTArrayStatement(context, node, body);
     }
 
     return transformForOfIteratorStatement(context, node, body);

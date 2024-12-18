@@ -2,6 +2,7 @@ import * as ts from "typescript";
 import * as lua from "../../LuaAST";
 import { TransformationContext } from "../context";
 import {ngrTransformArrayConstructorCall, ngrTransformArrayProperty, ngrTransformArrayPrototypeCall} from "../ngrBuiltins/array";
+import {ngrTransformBuiltinPropertyAccessExpression} from "../ngrBuiltins/ngr";
 import { createNaN } from "../utils/lua-ast";
 import { importLuaLibFeature, LuaLibFeature } from "../utils/lualib";
 import { getIdentifierSymbolId } from "../utils/symbols";
@@ -38,6 +39,14 @@ export function transformBuiltinPropertyAccessExpression(
                 importLuaLibFeature(context, LuaLibFeature.Symbol);
         }
     }
+
+    // [NGR Begin][maxstsun] add ngr lid translate process
+
+    const ngrLibNode = ngrTransformBuiltinPropertyAccessExpression(context, node);
+    if (ngrLibNode){
+        return ngrLibNode;
+    }
+    // [NGR End]
 
     if (isStringType(context, ownerType)) {
         return transformStringProperty(context, node);
