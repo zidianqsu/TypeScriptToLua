@@ -2,6 +2,7 @@ import * as ts from "typescript";
 import * as lua from "../../LuaAST";
 import { transformBuiltinPropertyAccessExpression } from "../builtins";
 import { FunctionVisitor, TransformationContext } from "../context";
+import {ngrTransformStringByCustomName} from "../ngrBuiltins/ngr";
 import { AnnotationKind, getTypeAnnotations } from "../utils/annotations";
 import {
     invalidCallExtensionUse,
@@ -22,7 +23,7 @@ import {
     isOptionalContinuation,
     captureThisValue,
 } from "./optional-chaining";
-import { SyntaxKind } from "typescript";
+import {JSDoc, JSDocTag, SyntaxKind} from "typescript";
 import { getCustomNameFromSymbol } from "./identifier";
 
 function addOneToArrayAccessArgument(
@@ -191,7 +192,7 @@ export function transformPropertyAccessExpressionWithCapture(
                     node,
                     lua.createIdentifier("self"),
                     table,
-                    lua.createStringLiteral(property)
+                    lua.createStringLiteral(ngrTransformStringByCustomName(node, property))
                 ),
             };
         }

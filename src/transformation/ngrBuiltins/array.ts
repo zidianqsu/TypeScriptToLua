@@ -20,7 +20,7 @@ export function ngrTransformArrayConstructorCall(
     const expressionName = calledMethod.name.text;
     switch (expressionName) {
         case "from":
-            return transformLuaLibFunction(context, LuaLibFeature.ArrayFrom, node, ...params);
+            return params[0];
         case "isArray":
             return transformLuaLibFunction(context, LuaLibFeature.ArrayIsArray, node, ...params);
         case "of":
@@ -184,7 +184,16 @@ export function ngrTransformArrayPrototypeCall(
         case "slice":
             return transformLuaLibFunction(context, LuaLibFeature.ArraySlice, node, caller, ...params);
         case "splice":
-            return transformLuaLibFunction(context, LuaLibFeature.ArraySplice, node, caller, ...params);
+            return lua.createCallExpression(
+                lua.createTableIndexExpression(
+                    lua.createIdentifier("table"), lua.createStringLiteral("splice")
+                ),
+                [
+                    caller,
+                    ...params
+                ],
+                node
+            );
         case "join":
             const callerType = context.checker.getTypeAtLocation(calledMethod.expression);
             const elementType = context.checker.getElementTypeOfArrayType(callerType);

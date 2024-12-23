@@ -1,3 +1,4 @@
+import {JSDoc, JSDocTag, SymbolFlags} from "typescript";
 import * as ts from "typescript";
 import * as lua from "../../LuaAST";
 import { transformBuiltinIdentifierExpression, checkForLuaLibType } from "../builtins";
@@ -14,6 +15,7 @@ import { getExtensionKindForNode, getExtensionKindForSymbol } from "../utils/lan
 import { callExtensions } from "./language-extensions/call-extension";
 import { isIdentifierExtensionValue, reportInvalidExtensionValue } from "./language-extensions/identifier";
 import { Annotation, AnnotationKind, getNodeAnnotations } from "../utils/annotations";
+import { ngrTransformStringByCustomName } from "../ngrBuiltins/ngr";
 
 export function transformIdentifier(context: TransformationContext, identifier: ts.Identifier): lua.Identifier {
     return transformNonValueIdentifier(context, identifier, context.checker.getSymbolAtLocation(identifier));
@@ -102,7 +104,7 @@ function transformNonValueIdentifier(
     if (customName) text = customName;
 
     const symbolId = getIdentifierSymbolId(context, identifier, symbol);
-    return lua.createIdentifier(text, identifier, symbolId, identifier.text);
+    return lua.createIdentifier(ngrTransformStringByCustomName(identifier, text), identifier, symbolId, identifier.text);
 }
 
 export function transformIdentifierWithSymbol(
