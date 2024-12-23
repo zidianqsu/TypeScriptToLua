@@ -65,5 +65,16 @@ export function ngrTransformMapPrototypeCall(
                 ],
                 node
             );
+        case "values":
+            return lua.createCallExpression(
+                lua.createTableIndexExpression(
+                    lua.createIdentifier("table"), lua.createStringLiteral("values")
+                ),
+                [
+                    caller,
+                    ...params
+                ],
+                node
+            );
     }
 }

@@ -14,6 +14,7 @@ import { isRangeFunction, transformRangeStatement } from "../language-extensions
 import { transformForInitializer, transformLoopBody } from "./utils";
 import { getIterableExtensionKindForNode, IterableExtensionKind } from "../../utils/language-extensions";
 import { assertNever } from "../../../utils";
+import { unsupportedProperty } from "../../utils/diagnostics";
 
 function transformForOfArrayStatement(
     context: TransformationContext,
@@ -34,12 +35,15 @@ function transformForOfIteratorStatement(
     block: lua.Block
 ): lua.Statement {
     const valueVariable = transformForInitializer(context, statement.initializer, block);
-    const iterable = transformLuaLibFunction(
-        context,
-        LuaLibFeature.Iterator,
-        statement.expression,
+    const iterable      = context.options.unlua ?
         context.transformExpression(statement.expression)
-    );
+        : transformLuaLibFunction(
+            context,
+            LuaLibFeature.Iterator,
+            statement.expression,
+            context.transformExpression(statement.expression)
+        );
+        context.diagnostics.push(unsupportedProperty(statement, "Array", "for of"));
 
     return lua.createForInStatement(block, [lua.createAnonymousIdentifier(), valueVariable], [iterable], statement);
 }
