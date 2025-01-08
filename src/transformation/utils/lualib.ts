@@ -20,30 +20,10 @@ export function transformLuaLibFunction(
     return lua.createCallExpression(functionIdentifier, params, tsParent);
 }
 
-// [NGR Begin][maxstsun] transform class creation method to use NGR class type
 export function transformUENewFunction(
-    context: TransformationContext,
-    tsNode: ts.NewExpression,
-    ...params: lua.Expression[]): lua.CallExpression {
-    const indexNode = tsNode.expression.kind === ts.SyntaxKind.Identifier ? lua.createStringLiteral(
-        tsNode.expression.getText()) : context.transformExpression(tsNode.expression);
-    return lua.createCallExpression(
-        lua.createTableIndexExpression(
-            lua.createTableIndexExpression(
-                lua.createIdentifier("ClassLib"),
-                indexNode,
-                undefined
-            ),
-            lua.createStringLiteral("New")
-        ),
-        [
-            lua.createTableIndexExpression(
-                lua.createIdentifier("ClassLib"),
-                indexNode,
-                undefined
-            ),
-            ...params
-        ]
-    );
+    context: TransformationContext, 
+    tsNode: ts.NewExpression, 
+    ...params: lua.Expression[]): lua.CallExpression
+{
+    return lua.createCallExpression(context.transformExpression(tsNode.expression), params, tsNode);
 }
-// [NGR End][maxstsun]
