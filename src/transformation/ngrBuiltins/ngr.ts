@@ -29,16 +29,6 @@ export function ngrTransformBuiltinPropertyAccessExpression(
         curNode = curNode.expression as ts.PropertyAccessExpression;
     }
 
-    const jsDocs: Array<JSDocTag | JSDoc> = [];
-    let tmpNode = node as ts.Node;
-    while (tmpNode) {
-        // 如果当前节点有 JSDoc，加入结果
-        const doc = ts.getAllJSDocTags(tmpNode, ts.isJSDocUnknownTag);
-        jsDocs.push(...doc);
-        // 移动到父节点
-        tmpNode = tmpNode.parent;
-    }
-
     // check is top level type is ue, if true translate to unlua type
     if (context.checker.getTypeAtLocation(curNode).symbol.getName() === "\"ue\"") {
         let property = node.name.text;
